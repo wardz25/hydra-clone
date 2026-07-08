@@ -14,8 +14,8 @@ if isTradeWorld then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/hydrahub/refs/heads/main/Market.lua"))()
     end)
     task.spawn(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/wardz25/sphinxhub/refs/heads/main/main.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/wardz25/hydra-clone/refs/heads/main/source%20code%20hydra.lua"))()
     end)
 else
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/wardz25/sphinxhub/refs/heads/main/main.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/wardz25/hydra-clone/refs/heads/main/source%20code%20hydra.lua"))()
 end
