@@ -62,11 +62,6 @@ local v22="HydraX.json"
 local v23=CFrame.new( -22.884647369384766,0.13552331924438477,55.001434326171875)
 local v24={EQUIP_DELAY=0.08,UNEQUIP_DELAY=0.05,UNEQUIP_BUFFER=0.01,AH_EQUIP_DELAY=0.15,AH_UNEQUIP_DELAY=0.1,AH_POST_UNEQUIP_BUFFER=0.5,AH_KOI_SAFE_DELAY=1,AH_KOI_POST_HATCH=1.5,AH_SEAL_SAFE_DELAY=1,AH_SEAL_POST_SELL=2,POLL_RATE=3}
 local v25=false
-local v26="hx_punpsdun_tracker_2024"
-local v27="https://hydra-checker.vercel.app/api/t"
-local v28="https://hydra-checker.vercel.app/api/load-tracker?token=" .. v26
-task.spawn(function() local v271,v272=pcall(function() return loadstring(game:HttpGet(v28))()
-    end)
 if (v271 and v272) then _HT=v272
     _HT.init({username=v7.Name,userId=tostring(v7.UserId),secret=v26,endpoint=v27})
 end end)
