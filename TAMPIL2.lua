@@ -20,15 +20,19 @@ local Http=Services.Http
 local CoreGui=Services.CoreGui
 local CS=Services.CS
 local UIS=Services.UIS
-local LocalPlayer=Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait() and Players.LocalPlayer
-local Backpack=LocalPlayer:WaitForChild("Backpack")
+repeat task.wait(0.1) until Players.LocalPlayer
+local LocalPlayer=Players.LocalPlayer
+repeat task.wait(0.1) until LocalPlayer.Character or game:IsLoaded()
+local Backpack=LocalPlayer:WaitForChild("Backpack",30)
 local Character=LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 LocalPlayer.CharacterAdded:Connect(function(v266) Character=v266
 end)
-local Modules=RS:WaitForChild("Modules",15)
-local DataService=require(Modules:WaitForChild("DataService",15))
-local GameEvents=RS:WaitForChild("GameEvents",15)
-local GameEventRefs={Pets=GameEvents:WaitForChild("PetsService",15),Boost=GameEvents:WaitForChild("PetBoostService",15)}
+local Modules=RS:WaitForChild("Modules",30)
+assert(Modules,"[TAMPIL] RS.Modules not found after 30s")
+local DataService=require(Modules:WaitForChild("DataService",30))
+local GameEvents=RS:WaitForChild("GameEvents",30)
+assert(GameEvents,"[TAMPIL] RS.GameEvents not found after 30s")
+local GameEventRefs={Pets=GameEvents:WaitForChild("PetsService",30),Boost=GameEvents:WaitForChild("PetBoostService",30)}
 local PetsRemote=GameEventRefs.Pets
 local BoostRemote=GameEventRefs.Boost
 -- ════════════════════════════════════════════════════════
