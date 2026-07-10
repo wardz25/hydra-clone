@@ -28,7 +28,7 @@ local BoostRemote=GameEventRefs.Boost
 -- ════════════════════════════════════════════════════════
 -- § 2 · LIBRARY LOAD & THEME
 -- ════════════════════════════════════════════════════════
-local HydraLib=loadstring(readfile("HydraMainLibrary.lua"))()
+local HydraLib=loadstring(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/HydraMainLibrary.lua"))()
 local T={BG=Color3.fromRGB(18,18,31),PANEL=Color3.fromRGB(12,12,20),BTN=Color3.fromRGB(26,26,46),SIDEBAR=Color3.fromRGB(14,14,24),STROKE=Color3.fromRGB(58,58,92),ACCENT=Color3.fromRGB(127,119,221),TEXT=Color3.fromRGB(220,220,235),DIM=Color3.fromRGB(100,100,130),SEL_BG=Color3.fromRGB(127,119,221),SEL_TXT=Color3.fromRGB(255,255,255),SUCCESS=Color3.fromRGB(80,210,100),ERROR=Color3.fromRGB(215,70,70),TOGGLE_ON=Color3.fromRGB(127,119,221),TOGGLE_OFF=Color3.fromRGB(35,35,55),ACTIVE_BG=Color3.fromRGB(20,20,50),ACTIVE_TXT=Color3.fromRGB(160,150,255),DARK_CARD=Color3.fromRGB(10,10,18),PHASE2=Color3.fromRGB(180,120,255)}
 local UI=HydraLib.new(T)
 if not HydraLib.buildPetList then HydraLib.buildPetList=function(v2321,v2322,v2323,v2324,v2325,v2326,v2327,v2328,v2329,v2330) local v2331=v2321.T
@@ -2387,8 +2387,8 @@ levelingScroll.CanvasSize=UDim2.new(0,0,0,0)
 UI:list(levelingScroll,6)
 UI:pad(levelingScroll,4,4,4,8)
 _G.HH_Shared={V=UI,T=T,D=cfg,CFG=timingCfg,Player=LocalPlayer,Backpack=Backpack,Char=Character,MUTATION_MAP=MutationMap,saveD=saveConfig,getInv=getInventory,getKG=getKG,getAge=getAge,getBase=getBaseWeight,getPType=getPetType,isFav=isFavorited,findPetTool=findPetTool,getMutName=getMutationName,unequipAll=unequipAll,equipList=equipList,buildEquip=buildEquipList,waitUntilEquipped=waitUntilEquipped,getActivePets=getActivePets,getFarmCF=getFarmCF,PetsRemote=PetsRemote,FavRemote=FavoriteItemRemote,SellAllRemote=SellAllPetsRemote,DataService=DataService,htTrack=trackEvent,UI=HydraLib,outerScroll=levelingScroll,PageLeveling=levelingPage,_buildTeamDD=buildTeamDropdown,getTeamUUIDs=getTeamUUIDs}
-loadstring(game:HttpGet("https://hydra-checker.vercel.app/api/module?name=leveling",true))()
-loadstring(game:HttpGet("https://hydra-checker.vercel.app/api/module?name=nightmare",true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/wardz25/hydra-clone/refs/heads/main/leveling.lua", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/wardz25/hydra-clone/refs/heads/main/nightmare.lua", true))()
 
 local function buildAutoEVSection() local evRunning=false
     local evPollRate=1
