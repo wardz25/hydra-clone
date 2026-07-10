@@ -22,19 +22,28 @@ local CS=Services.CS
 local UIS=Services.UIS
 repeat task.wait(0.1) until Players.LocalPlayer
 local LocalPlayer=Players.LocalPlayer
+print("[DBG] 1 LocalPlayer ok")
 repeat task.wait(0.1) until LocalPlayer.Character or game:IsLoaded()
+print("[DBG] 2 game loaded")
 local Backpack=LocalPlayer:WaitForChild("Backpack",30)
+print("[DBG] 3 Backpack ok")
 local Character=LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+print("[DBG] 4 Character ok")
 LocalPlayer.CharacterAdded:Connect(function(v266) Character=v266
 end)
 local Modules=RS:WaitForChild("Modules",30)
+print("[DBG] 5 Modules:",tostring(Modules))
 assert(Modules,"[TAMPIL] RS.Modules not found after 30s")
 local DataService=require(Modules:WaitForChild("DataService",30))
+print("[DBG] 6 DataService ok")
 local GameEvents=RS:WaitForChild("GameEvents",30)
+print("[DBG] 7 GameEvents:",tostring(GameEvents))
 assert(GameEvents,"[TAMPIL] RS.GameEvents not found after 30s")
 local GameEventRefs={Pets=GameEvents:WaitForChild("PetsService",30),Boost=GameEvents:WaitForChild("PetBoostService",30)}
+print("[DBG] 8 GameEventRefs ok")
 local PetsRemote=GameEventRefs.Pets
 local BoostRemote=GameEventRefs.Boost
+print("[DBG] 9 remotes ok")
 -- ════════════════════════════════════════════════════════
 -- § 2 · LIBRARY LOAD & THEME
 -- ════════════════════════════════════════════════════════
