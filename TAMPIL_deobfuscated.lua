@@ -70,13 +70,13 @@ v2321:stroke(v2970,(v2963 and v2331.ACCENT) or v2331.STROKE ,1)
 v2970.MouseButton1Click:Connect(function() v2325(v2959,v2970,v2324)
 end)
 end end
-end local PetsData=Http:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/pets.json"))
+end local PetsData=(function() local ok,r=pcall(function() return Http:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/pets.json",true)) end) return (ok and r) or {} end)()
 local PetAssetIds={}
-task.spawn(function() local v267,v268=pcall(function() return Http:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/PetAssetId.json"))
+task.spawn(function() local v267,v268=pcall(function() return Http:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/PetAssetId.json",true))
 end)
 if (v267 and v268) then PetAssetIds=v268
 end end)
-local MutationMap=Http:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/mutation.json"))
+local MutationMap=(function() local ok,r=pcall(function() return Http:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/mutation.json",true)) end) return (ok and r) or {} end)()
 -- ════════════════════════════════════════════════════════
 -- § 4 · CONSTANTS & TIMING CONFIG
 -- ════════════════════════════════════════════════════════
