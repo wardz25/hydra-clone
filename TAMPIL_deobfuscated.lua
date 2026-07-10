@@ -34,7 +34,7 @@ local BoostRemote=GameEventRefs.Boost
 -- ════════════════════════════════════════════════════════
 -- § 2 · LIBRARY LOAD & THEME
 -- ════════════════════════════════════════════════════════
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/HydraMainLibrary.lua",true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/HydraLibrary.lua",true))()
 local HydraLib=VoidUI
 assert(HydraLib,"[TAMPIL] HydraMainLibrary failed to load — VoidUI is nil")
 local T={BG=Color3.fromRGB(18,18,31),PANEL=Color3.fromRGB(12,12,20),BTN=Color3.fromRGB(26,26,46),SIDEBAR=Color3.fromRGB(14,14,24),STROKE=Color3.fromRGB(58,58,92),ACCENT=Color3.fromRGB(127,119,221),TEXT=Color3.fromRGB(220,220,235),DIM=Color3.fromRGB(100,100,130),SEL_BG=Color3.fromRGB(127,119,221),SEL_TXT=Color3.fromRGB(255,255,255),SUCCESS=Color3.fromRGB(80,210,100),ERROR=Color3.fromRGB(215,70,70),TOGGLE_ON=Color3.fromRGB(127,119,221),TOGGLE_OFF=Color3.fromRGB(35,35,55),ACTIVE_BG=Color3.fromRGB(20,20,50),ACTIVE_TXT=Color3.fromRGB(160,150,255),DARK_CARD=Color3.fromRGB(10,10,18),PHASE2=Color3.fromRGB(180,120,255)}
