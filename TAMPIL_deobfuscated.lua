@@ -5,7 +5,11 @@
 -- Game:  Grow a Garden (Roblox)
 -- Note:  Script contains external telemetry (§ 5)
 -- ════════════════════════════════════════════════════════
-
+local _orig_error = error
+error = function(msg, lvl)
+    warn("[CRASH] " .. tostring(msg))
+    _orig_error(msg, (lvl or 1) + 1)
+end
 -- ════════════════════════════════════════════════════════
 -- § 1 · ROBLOX SERVICES & CORE REFERENCES
 -- ════════════════════════════════════════════════════════
@@ -21,8 +25,10 @@ local Backpack=LocalPlayer:WaitForChild("Backpack")
 local Character=LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 LocalPlayer.CharacterAdded:Connect(function(v266) Character=v266
 end)
-local DataService=require(RS.Modules.DataService)
-local GameEventRefs={Pets=RS:WaitForChild("GameEvents"):WaitForChild("PetsService"),Boost=RS:WaitForChild("GameEvents"):WaitForChild("PetBoostService")}
+local Modules=RS:WaitForChild("Modules",15)
+local DataService=require(Modules:WaitForChild("DataService",15))
+local GameEvents=RS:WaitForChild("GameEvents",15)
+local GameEventRefs={Pets=GameEvents:WaitForChild("PetsService",15),Boost=GameEvents:WaitForChild("PetBoostService",15)}
 local PetsRemote=GameEventRefs.Pets
 local BoostRemote=GameEventRefs.Boost
 -- ════════════════════════════════════════════════════════
