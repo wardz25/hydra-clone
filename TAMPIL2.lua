@@ -1,5 +1,5 @@
 -- ============================================================
--- Hydra Hub – Fully Patched, No Tracker, No Nil Errors
+-- Hydra Hub – Final Fix (No Nil, No Tracker, Cache)
 -- ============================================================
 
 local Players = game:GetService("Players")
@@ -19,6 +19,21 @@ local DataService = require(RS.Modules.DataService)
 local GameEvents = RS:WaitForChild("GameEvents")
 local PetsRemote = GameEvents:WaitForChild("PetsService")
 local BoostRemote = GameEvents:WaitForChild("PetBoostService")
+
+-- ============================================================
+-- COLORS (harus didefinisikan SEBELUM UI)
+-- ============================================================
+local Colors = {
+    BG = Color3.fromRGB(18,18,31), PANEL = Color3.fromRGB(12,12,20),
+    BTN = Color3.fromRGB(26,26,46), SIDEBAR = Color3.fromRGB(14,14,24),
+    STROKE = Color3.fromRGB(58,58,92), ACCENT = Color3.fromRGB(127,119,221),
+    TEXT = Color3.fromRGB(220,220,235), DIM = Color3.fromRGB(100,100,130),
+    SEL_BG = Color3.fromRGB(127,119,221), SEL_TXT = Color3.fromRGB(255,255,255),
+    SUCCESS = Color3.fromRGB(80,210,100), ERROR = Color3.fromRGB(215,70,70),
+    TOGGLE_ON = Color3.fromRGB(127,119,221), TOGGLE_OFF = Color3.fromRGB(35,35,55),
+    ACTIVE_BG = Color3.fromRGB(20,20,50), ACTIVE_TXT = Color3.fromRGB(160,150,255),
+    DARK_CARD = Color3.fromRGB(10,10,18), PHASE2 = Color3.fromRGB(180,120,255)
+}
 
 -- ============================================================
 -- SAFE HTTP FETCHER (Cache + Retry)
@@ -92,57 +107,211 @@ local function loadHydraUI()
     return false
 end
 
--- Jika gagal, buat UI dummy (agar tidak error nil)
-local UI = {}
-if not loadHydraUI() then
-    warn("[Hydra] HydraMainLibrary gagal dimuat, menggunakan UI fallback.")
-    -- Dummy UI functions
-    UI.new = function() return UI end
-    UI.frame = function(parent, size, pos, bg, z) local f = Instance.new("Frame"); f.Size = size; f.Position = pos or UDim2.new(); f.BackgroundColor3 = bg or Color3.fromRGB(18,18,31); f.BorderSizePixel = 0; f.Parent = parent; if z then f.ZIndex = z end; return f end
-    UI.corner = function(obj, r) local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, r or 7); c.Parent = obj end
-    UI.stroke = function(obj, col, th) local s = Instance.new("UIStroke"); s.Color = col or Color3.fromRGB(127,119,221); s.Thickness = th or 1; s.Parent = obj end
-    UI.label = function(parent, text, size, pos, col, ts, align) local l = Instance.new("TextLabel"); l.Size = size; l.Position = pos or UDim2.new(); l.BackgroundTransparency = 1; l.Text = text; l.TextColor3 = col or Color3.fromRGB(220,220,235); l.Font = Enum.Font.GothamBold; l.TextSize = ts or 11; l.TextXAlignment = align or Enum.TextXAlignment.Left; l.Parent = parent; return l end
-    UI.button = function(parent, text, size, pos, bg, tc, ts) local b = Instance.new("TextButton"); b.Size = size; b.Position = pos or UDim2.new(); b.BackgroundColor3 = bg or Color3.fromRGB(26,26,46); b.Text = text; b.TextColor3 = tc or Color3.fromRGB(220,220,235); b.Font = Enum.Font.GothamBold; b.TextSize = ts or 11; b.AutoButtonColor = false; b.Parent = parent; return b end
-    UI.input = function(parent, val, placeholder, size, pos) local box = Instance.new("TextBox"); box.Size = size; box.Position = pos or UDim2.new(); box.BackgroundColor3 = Color3.fromRGB(12,12,20); box.Text = tostring(val); box.PlaceholderText = placeholder or ""; box.TextColor3 = Color3.fromRGB(220,220,235); box.PlaceholderColor3 = Color3.fromRGB(100,100,130); box.Font = Enum.Font.Gotham; box.TextSize = 11; box.ClearTextOnFocus = false; box.Parent = parent; return box end
-    UI.toggle = function(parent, pos, state, callback) local t = Instance.new("TextButton"); t.Size = UDim2.new(0, 44, 0, 22); t.Position = pos or UDim2.new(); t.BackgroundColor3 = state and Color3.fromRGB(127,119,221) or Color3.fromRGB(35,35,55); t.Text = state and "ON" or "OFF"; t.TextColor3 = Color3.fromRGB(255,255,255); t.Font = Enum.Font.GothamBold; t.TextSize = 11; t.AutoButtonColor = false; t.Parent = parent; t.MouseButton1Click:Connect(function() local newState = not state; state = newState; t.BackgroundColor3 = state and Color3.fromRGB(127,119,221) or Color3.fromRGB(35,35,55); t.Text = state and "ON" or "OFF"; if callback then callback(state) end end); return t end
-    UI.pad = function(obj, l, r, t, b) local p = Instance.new("UIPadding"); p.PaddingLeft = UDim.new(0, l or 0); p.PaddingRight = UDim.new(0, r or 0); p.PaddingTop = UDim.new(0, t or 0); p.PaddingBottom = UDim.new(0, b or 0); p.Parent = obj end
-    UI.list = function(parent, gap) local l = Instance.new("UIListLayout"); l.Padding = UDim.new(0, gap or 5); l.SortOrder = Enum.SortOrder.LayoutOrder; l.Parent = parent end
-    UI.scroll = function(parent, size, pos) local s = Instance.new("ScrollingFrame"); s.Size = size or UDim2.new(1,0,1,0); s.Position = pos or UDim2.new(); s.BackgroundTransparency = 1; s.BorderSizePixel = 0; s.ScrollBarThickness = 3; s.ScrollBarImageColor3 = Color3.fromRGB(127,119,221); s.AutomaticCanvasSize = Enum.AutomaticSize.Y; s.CanvasSize = UDim2.new(0,0,0,0); s.Parent = parent; return s end
-    UI.sidebar = function(parent) return parent end
-    UI.iconBtn = function(parent, icon, label) local b = UI.button(parent, icon, UDim2.new(1, -8, 0, 32), nil, Color3.fromRGB(14,14,24), Color3.fromRGB(220,220,235), 16); b.TextXAlignment = Enum.TextXAlignment.Center; b.TextYAlignment = Enum.TextYAlignment.Center; return { Button = b, SetActive = function(active) b.TextColor3 = active and Color3.fromRGB(127,119,221) or Color3.fromRGB(100,100,130) end } end
-    UI.sidebarDivider = function(parent) local d = Instance.new("Frame"); d.Size = UDim2.new(1, -8, 0, 1); d.BackgroundColor3 = Color3.fromRGB(58,58,92); d.BorderSizePixel = 0; d.Parent = parent end
-    UI.accordion = function(parent, title, lo, open) local h = UI.button(parent, title, UDim2.new(1,0,0,30), nil, Color3.fromRGB(12,12,20), Color3.fromRGB(220,220,235), 12); h.LayoutOrder = lo; h.TextXAlignment = Enum.TextXAlignment.Left; local inner = UI.frame(parent, UDim2.new(1,0,0,0), nil, Color3.fromRGB(18,18,31)); inner.LayoutOrder = lo + 1; inner.Visible = open or false; h.MouseButton1Click:Connect(function() inner.Visible = not inner.Visible end); return { Inner = inner } end
-    UI.updateRowVisual = function(btn, sel, selBg, selTxt, bg, txt, strokeCol, stroke) end
-    UI.updateRowVisualWithSub = function(btn, sel, selBg, selTxt, bg, txt, strokeCol, stroke, subCol, subTxt) end
-    UI.inlinePickerDropdown = function(parent, overlay, opts) local row = UI.frame(parent, UDim2.new(1,0,0,28), nil, Color3.fromRGB(18,18,18)); UI.label(row, opts.label or "Select", UDim2.new(0.6,0,1,0), nil, Color3.fromRGB(220,220,235), 11); local btn = UI.button(row, "Pilih", UDim2.new(0,80,0,22), UDim2.new(1,-86,0.5,-11), Color3.fromRGB(26,26,46), Color3.fromRGB(127,119,221), 11); local selected = {}; btn.MouseButton1Click:Connect(function() -- simple picker modal end); return { row = row, Set = function(vals) selected = vals; btn.Text = #vals > 0 and #vals.." selected" or "Pilih" end } end
-    UI.modePickerRow = function(parent, opts) local row = UI.frame(parent, UDim2.new(1,0,0,28), nil, Color3.fromRGB(18,18,18)); UI.label(row, opts.label or "Mode", UDim2.new(0.5,0,1,0), nil, Color3.fromRGB(220,220,235), 11); local modes = {}; for _, m in ipairs(opts.modes) do local b = UI.button(row, m.name, UDim2.new(0,60,0,22), nil, Color3.fromRGB(26,26,46), Color3.fromRGB(220,220,235), 10); b.Parent = row; table.insert(modes, b) end; return { row = row } end
-    UI.timingEditor = function(parent, overlay, cfg, config, saveFn) return UI.frame(parent, UDim2.new(1,0,0,26), nil, Color3.fromRGB(18,18,18)) end
-    UI.logPanel = function(parent, lo, height) local f = UI.frame(parent, UDim2.new(1,0,0,height or 30), nil, Color3.fromRGB(18,18,18)); f.LayoutOrder = lo; return f, function(msg, col) end end
-    UI.divider = function(parent, lo) local d = UI.frame(parent, UDim2.new(1,0,0,1), nil, Color3.fromRGB(58,58,92)); d.LayoutOrder = lo; return d end
-    UI.teamCard = function(parent, name, pets, count, lo, onEquip, onDelete) local f = UI.frame(parent, UDim2.new(1,0,0,36), nil, Color3.fromRGB(18,18,18)); f.LayoutOrder = lo; UI.label(f, name, UDim2.new(0.5,0,1,0), nil, Color3.fromRGB(220,220,235), 12); local eq = UI.button(f, "Equip", UDim2.new(0,60,0,20), UDim2.new(0.7,0,0.5,-10), Color3.fromRGB(26,26,46), Color3.fromRGB(127,119,221), 10); eq.MouseButton1Click:Connect(onEquip); local del = UI.button(f, "X", UDim2.new(0,24,0,20), UDim2.new(1,-28,0.5,-10), Color3.fromRGB(30,17,19), Color3.fromRGB(208,140,152), 10); del.MouseButton1Click:Connect(onDelete); return f end
-    UI.builtinTeamCard = function(parent, name, desc, lo, onLoad) local f = UI.frame(parent, UDim2.new(1,0,0,36), nil, Color3.fromRGB(18,18,18)); f.LayoutOrder = lo; UI.label(f, name, UDim2.new(0.5,0,1,0), nil, Color3.fromRGB(220,220,235), 12); UI.label(f, desc, UDim2.new(0.5,0,0,14), UDim2.new(0.5,0,0,18), Color3.fromRGB(100,100,130), 9); local ld = UI.button(f, "Load", UDim2.new(0,60,0,20), UDim2.new(0.8,0,0.5,-10), Color3.fromRGB(26,26,46), Color3.fromRGB(127,119,221), 10); ld.MouseButton1Click:Connect(onLoad); return f end
-end
+-- ============================================================
+-- BUAT UI (baik dari HydraUI atau fallback dummy)
+-- ============================================================
+local UI = {}  -- default kosong, akan diisi
 
--- ===== Colors =====
-local Colors = {
-    BG = Color3.fromRGB(18,18,31), PANEL = Color3.fromRGB(12,12,20),
-    BTN = Color3.fromRGB(26,26,46), SIDEBAR = Color3.fromRGB(14,14,24),
-    STROKE = Color3.fromRGB(58,58,92), ACCENT = Color3.fromRGB(127,119,221),
-    TEXT = Color3.fromRGB(220,220,235), DIM = Color3.fromRGB(100,100,130),
-    SEL_BG = Color3.fromRGB(127,119,221), SEL_TXT = Color3.fromRGB(255,255,255),
-    SUCCESS = Color3.fromRGB(80,210,100), ERROR = Color3.fromRGB(215,70,70),
-    TOGGLE_ON = Color3.fromRGB(127,119,221), TOGGLE_OFF = Color3.fromRGB(35,35,55),
-    ACTIVE_BG = Color3.fromRGB(20,20,50), ACTIVE_TXT = Color3.fromRGB(160,150,255),
-    DARK_CARD = Color3.fromRGB(10,10,18), PHASE2 = Color3.fromRGB(180,120,255)
-}
-
--- ===== Patch buildPetList (fallback) =====
-if not HydraUI or not HydraUI.buildPetList then
-    UI.buildPetList = function(parent, container, selected, isFav, onSelect, searchText, kgFunc, invData, favFunc, ageFunc)
-        -- dummy, just to avoid nil error
-    end
+if loadHydraUI() and HydraUI then
+    UI = HydraUI.new(Colors)
 else
-    UI.buildPetList = HydraUI.buildPetList
+    warn("[Hydra] HydraMainLibrary gagal dimuat, menggunakan UI fallback.")
+    -- Dummy functions (semua method dasar)
+    UI.new = function() return UI end
+    UI.frame = function(parent, size, pos, bg, z)
+        local f = Instance.new("Frame")
+        f.Size = size or UDim2.new(1,0,1,0)
+        f.Position = pos or UDim2.new()
+        f.BackgroundColor3 = bg or Color3.fromRGB(18,18,31)
+        f.BorderSizePixel = 0
+        if z then f.ZIndex = z end
+        f.Parent = parent
+        return f
+    end
+    UI.corner = function(obj, r)
+        local c = Instance.new("UICorner")
+        c.CornerRadius = UDim.new(0, r or 7)
+        c.Parent = obj
+    end
+    UI.stroke = function(obj, col, th)
+        local s = Instance.new("UIStroke")
+        s.Color = col or Color3.fromRGB(127,119,221)
+        s.Thickness = th or 1
+        s.Parent = obj
+    end
+    UI.label = function(parent, text, size, pos, col, ts, align)
+        local l = Instance.new("TextLabel")
+        l.Size = size or UDim2.new(1,0,0,20)
+        l.Position = pos or UDim2.new()
+        l.BackgroundTransparency = 1
+        l.Text = text or ""
+        l.TextColor3 = col or Color3.fromRGB(220,220,235)
+        l.Font = Enum.Font.GothamBold
+        l.TextSize = ts or 11
+        l.TextXAlignment = align or Enum.TextXAlignment.Left
+        l.Parent = parent
+        return l
+    end
+    UI.button = function(parent, text, size, pos, bg, tc, ts)
+        local b = Instance.new("TextButton")
+        b.Size = size or UDim2.new(0,80,0,22)
+        b.Position = pos or UDim2.new()
+        b.BackgroundColor3 = bg or Color3.fromRGB(26,26,46)
+        b.Text = text or ""
+        b.TextColor3 = tc or Color3.fromRGB(220,220,235)
+        b.Font = Enum.Font.GothamBold
+        b.TextSize = ts or 11
+        b.AutoButtonColor = false
+        b.Parent = parent
+        return b
+    end
+    UI.input = function(parent, val, placeholder, size, pos)
+        local box = Instance.new("TextBox")
+        box.Size = size or UDim2.new(0,64,0,20)
+        box.Position = pos or UDim2.new()
+        box.BackgroundColor3 = Color3.fromRGB(12,12,20)
+        box.Text = tostring(val)
+        box.PlaceholderText = placeholder or ""
+        box.TextColor3 = Color3.fromRGB(220,220,235)
+        box.PlaceholderColor3 = Color3.fromRGB(100,100,130)
+        box.Font = Enum.Font.Gotham
+        box.TextSize = 11
+        box.ClearTextOnFocus = false
+        box.Parent = parent
+        return box
+    end
+    UI.toggle = function(parent, pos, state, callback)
+        local t = Instance.new("TextButton")
+        t.Size = UDim2.new(0, 44, 0, 22)
+        t.Position = pos or UDim2.new()
+        t.BackgroundColor3 = state and Color3.fromRGB(127,119,221) or Color3.fromRGB(35,35,55)
+        t.Text = state and "ON" or "OFF"
+        t.TextColor3 = Color3.fromRGB(255,255,255)
+        t.Font = Enum.Font.GothamBold
+        t.TextSize = 11
+        t.AutoButtonColor = false
+        t.Parent = parent
+        t.MouseButton1Click:Connect(function()
+            local newState = not state
+            state = newState
+            t.BackgroundColor3 = state and Color3.fromRGB(127,119,221) or Color3.fromRGB(35,35,55)
+            t.Text = state and "ON" or "OFF"
+            if callback then callback(state) end
+        end)
+        return t
+    end
+    UI.pad = function(obj, l, r, t, b)
+        local p = Instance.new("UIPadding")
+        p.PaddingLeft = UDim.new(0, l or 0)
+        p.PaddingRight = UDim.new(0, r or 0)
+        p.PaddingTop = UDim.new(0, t or 0)
+        p.PaddingBottom = UDim.new(0, b or 0)
+        p.Parent = obj
+    end
+    UI.list = function(parent, gap)
+        local l = Instance.new("UIListLayout")
+        l.Padding = UDim.new(0, gap or 5)
+        l.SortOrder = Enum.SortOrder.LayoutOrder
+        l.Parent = parent
+    end
+    UI.scroll = function(parent, size, pos)
+        local s = Instance.new("ScrollingFrame")
+        s.Size = size or UDim2.new(1,0,1,0)
+        s.Position = pos or UDim2.new()
+        s.BackgroundTransparency = 1
+        s.BorderSizePixel = 0
+        s.ScrollBarThickness = 3
+        s.ScrollBarImageColor3 = Color3.fromRGB(127,119,221)
+        s.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        s.CanvasSize = UDim2.new(0,0,0,0)
+        s.Parent = parent
+        return s
+    end
+    UI.sidebar = function(parent) return parent end
+    UI.iconBtn = function(parent, icon, label)
+        local b = UI.button(parent, icon, UDim2.new(1, -8, 0, 32), nil, Color3.fromRGB(14,14,24), Color3.fromRGB(220,220,235), 16)
+        b.TextXAlignment = Enum.TextXAlignment.Center
+        b.TextYAlignment = Enum.TextYAlignment.Center
+        return {
+            Button = b,
+            SetActive = function(active)
+                b.TextColor3 = active and Color3.fromRGB(127,119,221) or Color3.fromRGB(100,100,130)
+            end
+        }
+    end
+    UI.sidebarDivider = function(parent)
+        local d = Instance.new("Frame")
+        d.Size = UDim2.new(1, -8, 0, 1)
+        d.BackgroundColor3 = Color3.fromRGB(58,58,92)
+        d.BorderSizePixel = 0
+        d.Parent = parent
+    end
+    UI.accordion = function(parent, title, lo, open)
+        local h = UI.button(parent, title, UDim2.new(1,0,0,30), nil, Color3.fromRGB(12,12,20), Color3.fromRGB(220,220,235), 12)
+        h.LayoutOrder = lo
+        h.TextXAlignment = Enum.TextXAlignment.Left
+        local inner = UI.frame(parent, UDim2.new(1,0,0,0), nil, Color3.fromRGB(18,18,31))
+        inner.LayoutOrder = lo + 1
+        inner.Visible = open or false
+        h.MouseButton1Click:Connect(function()
+            inner.Visible = not inner.Visible
+        end)
+        return { Inner = inner }
+    end
+    UI.updateRowVisual = function() end
+    UI.updateRowVisualWithSub = function() end
+    UI.inlinePickerDropdown = function(parent, overlay, opts)
+        local row = UI.frame(parent, UDim2.new(1,0,0,28), nil, Color3.fromRGB(18,18,18))
+        UI.label(row, opts.label or "Select", UDim2.new(0.6,0,1,0), nil, Color3.fromRGB(220,220,235), 11)
+        local btn = UI.button(row, "Pilih", UDim2.new(0,80,0,22), UDim2.new(1,-86,0.5,-11), Color3.fromRGB(26,26,46), Color3.fromRGB(127,119,221), 11)
+        local selected = {}
+        btn.MouseButton1Click:Connect(function() end)
+        return {
+            row = row,
+            Set = function(vals)
+                selected = vals
+                btn.Text = #vals > 0 and #vals.." selected" or "Pilih"
+            end
+        }
+    end
+    UI.modePickerRow = function(parent, opts)
+        local row = UI.frame(parent, UDim2.new(1,0,0,28), nil, Color3.fromRGB(18,18,18))
+        UI.label(row, opts.label or "Mode", UDim2.new(0.5,0,1,0), nil, Color3.fromRGB(220,220,235), 11)
+        return { row = row }
+    end
+    UI.timingEditor = function(parent, overlay, cfg, config, saveFn)
+        return UI.frame(parent, UDim2.new(1,0,0,26), nil, Color3.fromRGB(18,18,18))
+    end
+    UI.logPanel = function(parent, lo, height)
+        local f = UI.frame(parent, UDim2.new(1,0,0,height or 30), nil, Color3.fromRGB(18,18,18))
+        f.LayoutOrder = lo
+        return f, function(msg, col) end
+    end
+    UI.divider = function(parent, lo)
+        local d = UI.frame(parent, UDim2.new(1,0,0,1), nil, Color3.fromRGB(58,58,92))
+        d.LayoutOrder = lo
+        return d
+    end
+    UI.teamCard = function(parent, name, pets, count, lo, onEquip, onDelete)
+        local f = UI.frame(parent, UDim2.new(1,0,0,36), nil, Color3.fromRGB(18,18,18))
+        f.LayoutOrder = lo
+        UI.label(f, name, UDim2.new(0.5,0,1,0), nil, Color3.fromRGB(220,220,235), 12)
+        local eq = UI.button(f, "Equip", UDim2.new(0,60,0,20), UDim2.new(0.7,0,0.5,-10), Color3.fromRGB(26,26,46), Color3.fromRGB(127,119,221), 10)
+        eq.MouseButton1Click:Connect(onEquip)
+        local del = UI.button(f, "X", UDim2.new(0,24,0,20), UDim2.new(1,-28,0.5,-10), Color3.fromRGB(30,17,19), Color3.fromRGB(208,140,152), 10)
+        del.MouseButton1Click:Connect(onDelete)
+        return f
+    end
+    UI.builtinTeamCard = function(parent, name, desc, lo, onLoad)
+        local f = UI.frame(parent, UDim2.new(1,0,0,36), nil, Color3.fromRGB(18,18,18))
+        f.LayoutOrder = lo
+        UI.label(f, name, UDim2.new(0.5,0,1,0), nil, Color3.fromRGB(220,220,235), 12)
+        UI.label(f, desc, UDim2.new(0.5,0,0,14), UDim2.new(0.5,0,0,18), Color3.fromRGB(100,100,130), 9)
+        local ld = UI.button(f, "Load", UDim2.new(0,60,0,20), UDim2.new(0.8,0,0.5,-10), Color3.fromRGB(26,26,46), Color3.fromRGB(127,119,221), 10)
+        ld.MouseButton1Click:Connect(onLoad)
+        return f
+    end
+    UI.buildPetList = function() end
 end
 
 -- ============================================================
@@ -162,7 +331,7 @@ local PetAssetIds = loadJSON("https://raw.githubusercontent.com/Punpunzero02/upd
 local MutationMap = loadJSON("https://raw.githubusercontent.com/Punpunzero02/updater/refs/heads/main/mutation.json", "mutation")
 
 -- ===== NO TRACKER =====
-local function trackEvent() end  -- dummy
+local function trackEvent() end
 
 -- ===== Constants =====
 local PET_UUID_ATTR = "PET_UUID"
@@ -415,7 +584,7 @@ local function sendWebhook(embedData)
 end
 
 -- ============================================================
--- TEAM PRESETS & HELPERS
+-- TEAM PRESETS & HELPERS (disingkat karena panjang)
 -- ============================================================
 local TEAM_PRESETS = {
     { name = "7 Mimic + 1 Bald Eagle", desc = "Max passive Mimic, 1 Eagle filler", slots = { {petType="Mimic Octopus",count=7}, {petType="Bald Eagle",count=1} } },
@@ -589,17 +758,14 @@ local function getActivePetUUIDs()
 end
 
 -- ============================================================
--- AUTO FEATURES (Start/Stop)
+-- AUTO FEATURES (Start/Stop – placeholder)
 -- ============================================================
 local AutoHatchRunning = false; local AutoHatchTask = nil
 function startAutoHatch()
     if AutoHatchRunning then return end
     AutoHatchRunning = true
     AutoHatchTask = task.spawn(function()
-        while AutoHatchRunning do
-            -- full hatch logic here (dummy)
-            task.wait(1)
-        end
+        while AutoHatchRunning do task.wait(1) end
     end)
 end
 function stopAutoHatch() AutoHatchRunning = false; if AutoHatchTask then task.cancel(AutoHatchTask); AutoHatchTask = nil end end
@@ -608,9 +774,7 @@ local KG_Running = false; local KGTask = nil
 function startAutoKG()
     if KG_Running then return end
     KG_Running = true
-    KGTask = task.spawn(function()
-        while KG_Running do task.wait(1) end
-    end)
+    KGTask = task.spawn(function() while KG_Running do task.wait(1) end end)
 end
 function stopAutoKG() KG_Running = false; if KGTask then task.cancel(KGTask); KGTask = nil end end
 
@@ -618,9 +782,7 @@ local CollectRunning = false; local CollectTask = nil
 function startAutoCollect()
     if CollectRunning then return end
     CollectRunning = true
-    CollectTask = task.spawn(function()
-        while CollectRunning do task.wait(Config.autoCollect.interval) end
-    end)
+    CollectTask = task.spawn(function() while CollectRunning do task.wait(Config.autoCollect.interval) end end)
 end
 function stopAutoCollect() CollectRunning = false; if CollectTask then task.cancel(CollectTask); CollectTask = nil end end
 
@@ -655,7 +817,7 @@ end
 function stopBoostMode2() Boost2Running = false; if Boost2Task then task.cancel(Boost2Task); Boost2Task = nil end end
 
 -- ============================================================
--- MAIN GUI
+-- MAIN GUI (dengan UI yang sudah dipastikan tidak nil)
 -- ============================================================
 local function createUI()
     local existing = CoreGui:FindFirstChild("HydraHubUI")
@@ -691,7 +853,7 @@ local function createUI()
     UI.stroke(minBtn, Colors.STROKE, 1)
     closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
 
-    -- Drag logic
+    -- Drag logic (sama seperti sebelumnya, tidak diubah)
     local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
     titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -739,7 +901,7 @@ local function createUI()
         UI.label(tabFrames[i], "🔒 COMING SOON", UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 0.5, -10), Colors.DIM, 13, Enum.TextXAlignment.Center)
     end
 
-    -- ===== TAB 2: AUTOMATION =====
+    -- Tab 2: AUTOMATION (disingkat, sama seperti sebelumnya)
     local function buildAutomationTab()
         local tab = tabFrames[2]
         local sidebar = UI.frame(tab, UDim2.new(0, 52, 1, 0), nil, Colors.SIDEBAR)
@@ -752,7 +914,6 @@ local function createUI()
         local tradeBtn = UI.iconBtn(sideNav, "🎟️", "TRADE")
         local panelContainer = UI.frame(tab, UDim2.new(1, -56, 1, -2), UDim2.new(0, 54, 0, 1), Colors.BG, 1)
 
-        -- Fruit Panel
         local fruitPanel = UI.frame(panelContainer, UDim2.new(1, 0, 1, 0), nil, Colors.BG, 1)
         fruitPanel.Visible = true
         local scroll = UI.scroll(fruitPanel)
@@ -763,7 +924,6 @@ local function createUI()
         UI.list(inner, 6)
         UI.pad(inner, 6, 6, 6, 20)
 
-        -- Auto Collect Accordion
         local collectAcc = UI.accordion(inner, "🍎 AUTO COLLECT", 1, true)
         local ci = collectAcc.Inner
 
@@ -817,12 +977,10 @@ local function createUI()
             if v then startAutoCollect() else stopAutoCollect() end
         end)
 
-        -- Shop Panel (placeholder)
         local shopPanel = UI.frame(panelContainer, UDim2.new(1, 0, 1, 0), nil, Colors.BG, 1)
         shopPanel.Visible = false
         UI.label(shopPanel, "🚧 Coming Soon", UDim2.new(1, 0, 0, 20), nil, Colors.DIM, 10, Enum.TextXAlignment.Center).LayoutOrder = 1
 
-        -- Trade Panel (placeholder)
         local tradePanel = UI.frame(panelContainer, UDim2.new(1, 0, 1, 0), nil, Colors.BG, 1)
         tradePanel.Visible = false
         UI.label(tradePanel, "🚧 Coming Soon", UDim2.new(1, 0, 0, 20), nil, Colors.DIM, 10, Enum.TextXAlignment.Center).LayoutOrder = 1
@@ -842,7 +1000,7 @@ local function createUI()
     end
     buildAutomationTab()
 
-    -- ===== TAB 1: MAIN =====
+    -- Tab 1: MAIN
     local function buildMainTab()
         local tab = tabFrames[1]
         local sidebar = UI.frame(tab, UDim2.new(0, 52, 1, 0), nil, Colors.SIDEBAR)
@@ -905,7 +1063,6 @@ local function createUI()
         local webhookPanel = createPanel("webhook")
         local miscPanel = createPanel("misc")
 
-        -- Isi panel utama dengan UI sederhana
         UI.label(hatchPanel, "🥚 AUTO HATCH", UDim2.new(1, 0, 0, 20), nil, Colors.ACCENT, 12, Enum.TextXAlignment.Center)
         UI.label(elephantPanel, "🐘 AUTO KG", UDim2.new(1, 0, 0, 20), nil, Colors.ACCENT, 12, Enum.TextXAlignment.Center)
         UI.label(levelPanel, "⬆ LEVELING", UDim2.new(1, 0, 0, 20), nil, Colors.ACCENT, 12, Enum.TextXAlignment.Center)
@@ -931,7 +1088,7 @@ local function createUI()
     end
     buildMainTab()
 
-    -- Minimize / maximize
+    -- Minimize button
     local miniBtn = Instance.new("TextButton", screenGui)
     miniBtn.Size = UDim2.new(0, 42, 0, 42); miniBtn.Position = UDim2.new(0, 20, 0.5, -21)
     miniBtn.BackgroundColor3 = Color3.fromRGB(18,18,18); miniBtn.BorderSizePixel = 0; miniBtn.Text = ""
@@ -949,4 +1106,4 @@ end
 -- START
 -- ============================================================
 createUI()
-print("[Hydra Hub] Script loaded successfully. Tracker removed, nil errors fixed.")
+print("[Hydra Hub] Script loaded successfully. No tracker, nil-safe UI.")
